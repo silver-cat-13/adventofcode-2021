@@ -105,7 +105,10 @@ with open('input.txt', 'r') as f:
 
         line = f.readline()
 
-print(f"Current window {current_window}")
-for w in windows:
-    print(f"Last total {w.total_sum()}")
+# We have to compare the last data
+current_measurement = windows[current_window].total_sum()
+if previous_measurement < current_measurement:
+    print(f"Depth increased from {previous_measurement} to {current_measurement}")
+    increase_count += 1
+
 print(f"Total times the depth increased {increase_count}")
