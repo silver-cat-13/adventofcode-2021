@@ -65,7 +65,7 @@ previous_measurement = -1
 
 windows = (Window(), Window(), Window(), Window())
 
-with open('input.txt', 'r') as f:
+with open('input_data.txt', 'r') as f:
     line = f.readline()
     current_window = 0
     while line:

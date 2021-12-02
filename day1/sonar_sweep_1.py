@@ -62,7 +62,7 @@
 increase_count = 0
 previous_measurement = -1
 
-with open('input.txt', 'r') as f:
+with open('input_data.txt', 'r') as f:
     line = f.readline()
     while line:
         if previous_measurement == -1:
