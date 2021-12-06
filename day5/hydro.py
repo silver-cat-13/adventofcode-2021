@@ -149,6 +149,8 @@ class Map:
 
         return overlap
 
+    # TODO combine add_line_coordinate and add_diagonal_coordinate
+    # into one function for better managment of the code
     def add_diagonal_coordinate(self, coordinate):
         overlap = 0
         if not coordinate.is_diagonal():
