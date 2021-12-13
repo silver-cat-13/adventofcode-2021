@@ -168,11 +168,9 @@ graph_map = {}
 
 class PassageMap:
     def __init__(self, part_1):
-        self.graph        = {}
-        self.paths_to_end = 0
-
-        self.paths                   = []
+        self.graph                   = {}
         self.small_caves             = {}
+        self.paths_to_end            = 0
         self.small_cave_travel_twice = False
         self.part_1                  = part_1
 
@@ -196,13 +194,7 @@ class PassageMap:
 
     def depth_first_search_to_end(self, current_cave='start'):
         # using depth first search find all the paths to end
-
-        if len(self.paths) == 0:
-            # first time calling the function
-            self.paths.append([current_cave])
-
-        last_path = self.paths[-1]
-
+        # current_cave = last_path[-1]
         for cave in self.graph[current_cave]:
             if cave == 'start':
                 # ignore start cave
@@ -211,9 +203,6 @@ class PassageMap:
             if cave == 'end':
                 # we are at the end of the path
                 self.paths_to_end += 1
-                p = self.paths[-1]
-                p.append('end')
-                #print(",".join(p.path))
                 continue
 
             # Check the small caves we have traverse
@@ -224,8 +213,6 @@ class PassageMap:
                     self.small_cave_travel_twice = True
                 self.small_caves[cave] += 1
 
-            last_path.append(cave)
-            self.paths.append(last_path)
 
             # Go deeper
             self.depth_first_search_to_end(cave)
