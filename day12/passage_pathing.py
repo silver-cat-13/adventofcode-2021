@@ -194,7 +194,6 @@ class PassageMap:
 
     def depth_first_search_to_end(self, current_cave='start'):
         # using depth first search find all the paths to end
-        # current_cave = last_path[-1]
         for cave in self.graph[current_cave]:
             if cave == 'start':
                 # ignore start cave
