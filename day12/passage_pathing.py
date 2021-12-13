@@ -166,66 +166,15 @@ Your puzzle answer was 85062.
 
 graph_map = {}
 
-class Path:
-    def __init__(self, path):
-        self.path        = path
-        self.lower_caves = {}
-        for c in path:
-            if c.islower():
-                if not c in self.lower_caves:
-                    self.lower_caves[c] = 0
-                self.lower_caves[c] += 1
-
-    def is_lower_cave_duplicate_part_1(self, cave):
-        # return True if input cave is part of the lower_caves list
-        if cave in self.lower_caves:
-            return self.lower_caves[cave] > 1
-        return False
-
-
-    def is_lower_cave_duplicate_part_2(self, cave):
-        # return True if a lower case cave has been visited twice and no other cave has been visited once
-        if cave in self.lower_caves:
-            if self.lower_caves[cave] == 2:
-                # Cave has been seeing 2 times, check no other cave has been seeing more than
-                # once
-                for c in self.lower_caves:
-                    if c == cave:
-                        continue
-                    if self.lower_caves[c] == 2:
-                        return True
-                return False
-            elif self.lower_caves[cave] > 2:
-                return True
-        return False
-
-    def is_duplicate(self, cave_start, cave_end):
-        # Check if the path has already been done
-        path_str = ','.join(self.path)
-        return f"{cave_start},{cave_end}" in path_str
-
-    def last_cave(self):
-        return self.path[-1]
-
-    def __repr__(self):
-        return f"Path({self.path})"
-
-    def __str__(self):
-        if self.path:
-            return ",".join(self.path)
-        return ""
-
 class PassageMap:
-    def __init__(self):
+    def __init__(self, part_1):
         self.graph        = {}
-        # Store all the paths from 'start' to 'end' cave
-        # NOTE: This might not be needed for part2, (created in part1)
-        # we might only store the amount of paths instead as a counter
-        # for more efficient memory and performance
-        # self.paths_to_end = []
         self.paths_to_end = 0
 
-        self.paths        = []
+        self.paths                   = []
+        self.small_caves             = {}
+        self.small_cave_travel_twice = False
+        self.part_1                  = part_1
 
     def add_node(self, start, end):
         # Add the start and end node in the graph, these are bi-directional graphs
@@ -235,6 +184,13 @@ class PassageMap:
         if end not in self.graph:
             self.graph[end] = []
 
+        if start.islower():
+            if start not in self.small_caves:
+                self.small_caves[start] = 0
+        if end.islower():
+            if end not in self.small_caves:
+                self.small_caves[end] = 0
+
         self.graph[start].append(end)
         self.graph[end].append(start)
 
@@ -242,18 +198,12 @@ class PassageMap:
         # using depth first search find all the paths to end
 
         if len(self.paths) == 0:
-            self.paths.append(Path([current_cave]))
-            last_path = self.paths[-1]
-        else:
-            # add the cave to the last path
-            last_path = self.paths[-1]
+            # first time calling the function
+            self.paths.append([current_cave])
 
-            if last_path.is_lower_cave_duplicate_part_2(current_cave):
-                # current cave is a small cave that has already been seen
-                self.paths.pop()
-                return
+        last_path = self.paths[-1]
 
-        for cave in self.graph[last_path.last_cave()]:
+        for cave in self.graph[current_cave]:
             if cave == 'start':
                 # ignore start cave
                 continue
@@ -262,20 +212,38 @@ class PassageMap:
                 # we are at the end of the path
                 self.paths_to_end += 1
                 p = self.paths[-1]
-                p.path.append('end')
-                # print(",".join(p.path))
+                p.append('end')
+                #print(",".join(p.path))
                 continue
 
+            # Check the small caves we have traverse
+            if cave in self.small_caves:
+                if self.small_caves[cave] >= 1:
+                    if self.part_1 or self.small_cave_travel_twice:
+                        continue
+                    self.small_cave_travel_twice = True
+                self.small_caves[cave] += 1
+
+            last_path.append(cave)
+            self.paths.append(last_path)
+
             # Go deeper
-            new_path = last_path.path.copy()
-            new_path.append(cave)
-            self.paths.append(Path( new_path))
             self.depth_first_search_to_end(cave)
+
+            if cave in self.small_caves:
+                # decrease the number of small caves
+                self.small_caves[cave] -= 1
+                if self.small_caves[cave] == 1:
+                    self.small_cave_travel_twice = False
 
     def number_paths_to_end(self):
         return self.paths_to_end
 
-passage_map = PassageMap()
+    def reset(self, part_1):
+        self.paths_to_end = 0
+        self.part_1 = part_1
+
+passage_map = PassageMap(part_1=True)
 
 with open('input_data.txt', 'r') as f:
     line = f.readline()
@@ -287,10 +255,10 @@ with open('input_data.txt', 'r') as f:
         line = f.readline()
 
 
-paths_to_end = 0
-start_key = 'start'
 passage_map.depth_first_search_to_end()
+print(f"number of paths to end for part-1: {passage_map.number_paths_to_end()}")
 
-print(f"Number of paths to end: {passage_map.number_paths_to_end()}")
-
+passage_map.reset(part_1=False)
+passage_map.depth_first_search_to_end()
+print(f"number of paths to end for part-2: {passage_map.number_paths_to_end()}")
 
