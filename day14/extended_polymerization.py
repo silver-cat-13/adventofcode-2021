@@ -93,7 +93,7 @@ polymer_pairs = {}
 pairs_insertion = {}
 first_line = True
 
-with open('test_input_data.txt', 'r') as f:
+with open('input_data.txt', 'r') as f:
     line = f.readline()
     while line:
         line = line.strip()
